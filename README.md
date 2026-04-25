@@ -34,6 +34,6 @@ Open [sagargyalan. com. np](http://sagargyalan.com.np) and click on Publish.
 
 **Docs & Support**
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.sagargyalan.com.np/Integrations/Using-GitHub)
+Documentation: [https://docs.sagargyalan@gmail.com/Integrations/Using-GitHub](https://docs.sagargyalan@gmail.com/Integrations/Using-GitHub)
 
-Support: [https://app.base44.com/support](https://sagargyalan.com.np/support)
+Support: [https://sagargyalan@gmail.com/support](https://sagargyalan@gmail.com/support)
