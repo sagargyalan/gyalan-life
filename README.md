@@ -23,7 +23,7 @@ VITE_sagargyalan. com. np_URL=your_backend_url
 
 e.g.
 VITE_sagargyalan. com. np_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.sagargyalan.com.np
+VITE_sagargyalan. com. np_URL=https://my-to-do-list-81bfaad7.sagargyalan.com.np
 ```
 
 Run the app: `npm run dev`
