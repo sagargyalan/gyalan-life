@@ -1,0 +1,150 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useLanguage } from '../lib/LanguageContext';
+
+const CAT_COLORS = {
+  main: 'bg-orange-100 text-orange-700',
+  snack: 'bg-yellow-100 text-yellow-700',
+  dessert: 'bg-pink-100 text-pink-700',
+  drink: 'bg-blue-100 text-blue-700',
+  pickle: 'bg-green-100 text-green-700',
+};
+const CAT_EMOJI = { main: '🍛', snack: '🥙', dessert: '🍮', drink: '🍵', pickle: '🫙' };
+
+function RecipeModal({ recipe, onClose, lang, fontClass }) {
+  const title = (lang === 'ne' && recipe.title_ne) ? recipe.title_ne : recipe.title;
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-card rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-border" onClick={e => e.stopPropagation()}>
+        {recipe.cover_image && <img src={recipe.cover_image} alt={title} className="w-full h-52 object-cover rounded-t-2xl" />}
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${CAT_COLORS[recipe.category] || ''}`}>
+              {CAT_EMOJI[recipe.category]} {recipe.category}
+            </span>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl font-bold">×</button>
+          </div>
+          <h2 className={`font-serif text-2xl font-bold text-foreground mb-2 ${fontClass}`}>{title}</h2>
+          <div className="flex gap-4 text-xs text-muted-foreground mb-4">
+            {recipe.prep_time && <span>⏱ {recipe.prep_time} min</span>}
+            {recipe.serves && <span>👥 Serves {recipe.serves}</span>}
+          </div>
+          {recipe.description && <p className={`text-foreground/70 text-sm mb-5 ${fontClass}`}>{recipe.description}</p>}
+
+          {recipe.ingredients?.length > 0 && (
+            <div className="mb-5">
+              <h3 className="font-semibold text-foreground mb-2">🛒 Ingredients</h3>
+              <ul className="space-y-1">
+                {recipe.ingredients.map((ing, i) => (
+                  <li key={i} className={`text-sm text-foreground/80 flex gap-2 ${fontClass}`}>
+                    <span className="text-primary">•</span> {ing}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {recipe.steps?.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-foreground mb-2">👨‍🍳 Instructions</h3>
+              <ol className="space-y-2">
+                {recipe.steps.map((step, i) => (
+                  <li key={i} className={`text-sm text-foreground/80 flex gap-3 ${fontClass}`}>
+                    <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i+1}</span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LocalRecipes() {
+  const { lang, fontClass } = useLanguage();
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState('all');
+
+  const labels = {
+    en: { eyebrow: 'Traditional Food', title: 'Local Recipes', subtitle: 'Authentic dishes and recipes from Andheri village kitchen.', all: 'All', viewRecipe: 'View Recipe', noRecipes: 'No recipes yet.' },
+    ne: { eyebrow: 'परम्परागत खाना', title: 'स्थानीय रेसिपीहरू', subtitle: 'अँधेरी गाउँको परम्परागत भान्साबाट असली परिकारहरू।', all: 'सबै', viewRecipe: 'रेसिपी हेर्नुहोस्', noRecipes: 'अहिले कुनै रेसिपी छैन।' },
+    ko: { eyebrow: '전통 음식', title: '현지 레시피', subtitle: '안데리 마을 전통 주방의 정통 요리와 레시피.', all: '전체', viewRecipe: '레시피 보기', noRecipes: '레시피가 없습니다.' },
+  };
+  const t = labels[lang] || labels.en;
+
+  const categories = ['all', 'main', 'snack', 'dessert', 'drink', 'pickle'];
+
+  useEffect(() => {
+    base44.entities.Recipe.filter({ published: true }, '-created_date', 20)
+      .then(setRecipes).finally(() => setLoading(false));
+  }, []);
+
+  const filtered = filter === 'all' ? recipes : recipes.filter(r => r.category === filter);
+
+  return (
+    <section id="recipes" className="py-28 bg-secondary/20">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-12">
+          <p className="text-primary text-sm font-semibold tracking-widest uppercase mb-3">{t.eyebrow}</p>
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">{t.title}</h2>
+          <div className="w-12 h-0.5 bg-primary mx-auto mt-5 mb-4" />
+          <p className={`text-muted-foreground text-lg max-w-xl mx-auto ${fontClass}`}>{t.subtitle}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 justify-center mb-10">
+          {categories.map(cat => (
+            <button key={cat} onClick={() => setFilter(cat)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                filter === cat ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-primary'
+              }`}>
+              {cat === 'all' ? t.all : `${CAT_EMOJI[cat]} ${cat}`}
+            </button>
+          ))}
+        </div>
+
+        {loading ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1,2,3].map(i => <div key={i} className="bg-card border border-border rounded-2xl h-56 animate-pulse" />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground">{t.noRecipes}</div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map(r => {
+              const title = (lang === 'ne' && r.title_ne) ? r.title_ne : r.title;
+              return (
+                <div key={r.id} className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer group" onClick={() => setSelected(r)}>
+                  <div className="relative h-44 bg-muted overflow-hidden">
+                    {r.cover_image
+                      ? <img src={r.cover_image} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      : <div className="w-full h-full flex items-center justify-center text-5xl">{CAT_EMOJI[r.category] || '🍽️'}</div>
+                    }
+                  </div>
+                  <div className="p-4">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${CAT_COLORS[r.category] || ''}`}>
+                      {CAT_EMOJI[r.category]} {r.category}
+                    </span>
+                    <h3 className={`font-serif text-lg font-bold text-foreground mt-2 mb-1 ${fontClass}`}>{title}</h3>
+                    <div className="flex gap-3 text-xs text-muted-foreground mb-3">
+                      {r.prep_time && <span>⏱ {r.prep_time} min</span>}
+                      {r.serves && <span>👥 {r.serves}</span>}
+                      {r.ingredients?.length > 0 && <span>🛒 {r.ingredients.length} items</span>}
+                    </div>
+                    <span className="text-primary text-xs font-semibold hover:underline">{t.viewRecipe} →</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {selected && <RecipeModal recipe={selected} onClose={() => setSelected(null)} lang={lang} fontClass={fontClass} />}
+    </section>
+  );
+}

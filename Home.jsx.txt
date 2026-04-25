@@ -1,0 +1,72 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { LanguageProvider } from '../lib/LanguageContext';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import About from '../components/About';
+import ClockCalendar from '../components/ClockCalendar';
+import Family from '../components/Family';
+import Gallery from '../components/Gallery';
+import InteractiveVillageMap from '../components/InteractiveVillageMap';
+import BlogSection from '../components/blog/BlogSection';
+import EventCalendar from '../components/EventCalendar';
+import LocalRecipes from '../components/LocalRecipes';
+import ContactForm from '../components/ContactForm';
+import Guestbook from '../components/Guestbook';
+import Footer from '../components/Footer';
+import AdminPanel from '../components/blog/AdminPanel';
+import ScrollReveal from '../components/ScrollReveal';
+import VideoSection from '../components/VideoSection';
+import Timeline from '../components/Timeline';
+
+
+function HomeContent() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then(user => {
+      if (user && user.role === 'admin') setIsAdmin(true);
+    }).catch(() => {});
+  }, []);
+
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <Hero />
+      <ScrollReveal direction="up"><About /></ScrollReveal>
+      <ScrollReveal direction="up" delay={100}><ClockCalendar /></ScrollReveal>
+      <ScrollReveal direction="up"><Timeline /></ScrollReveal>
+      <ScrollReveal direction="up"><Family /></ScrollReveal>
+      <ScrollReveal direction="up"><Gallery /></ScrollReveal>
+<ScrollReveal direction="up"><EventCalendar /></ScrollReveal>
+      <ScrollReveal direction="up"><LocalRecipes /></ScrollReveal>
+      <ScrollReveal direction="up"><BlogSection /></ScrollReveal>
+      <ScrollReveal direction="up"><VideoSection /></ScrollReveal>
+      <InteractiveVillageMap />
+      <ScrollReveal direction="up"><ContactForm /></ScrollReveal>
+      <ScrollReveal direction="up"><Guestbook /></ScrollReveal>
+      <Footer />
+
+      {/* Admin floating button */}
+      {isAdmin && (
+        <button
+          onClick={() => setShowAdmin(true)}
+          className="fixed bottom-6 right-6 z-40 bg-primary text-primary-foreground rounded-full shadow-2xl px-5 py-3 font-medium text-sm hover:bg-primary/90 transition-all hover:scale-105 flex items-center gap-2"
+        >
+          ⚙️ Admin
+        </button>
+      )}
+
+      {showAdmin && <AdminPanel onClose={() => setShowAdmin(false)} />}
+    </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <LanguageProvider>
+      <HomeContent />
+    </LanguageProvider>
+  );
+}

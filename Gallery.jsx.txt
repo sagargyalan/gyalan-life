@@ -1,0 +1,191 @@
+import React, { useState } from 'react';
+import { useLanguage } from '../lib/LanguageContext';
+import GalleryLightbox from './GalleryLightbox';
+
+const PHOTOS = [
+  {
+    src: "https://media.base44.com/images/public/user_68fcf0a9928d8a4a4888358c/4be9e25b9_20240718_222958.jpg",
+    captionEn: "Sagar Gyalan Magar",
+    captionNe: "सागर ग्यालन मगर",
+    span: 'col-span-1 row-span-2',
+    category: 'family',
+  },
+  {
+    src: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/96fb76b72_20210525_155602.jpg",
+    captionEn: "Village Landscape — Betini, Andheri",
+    captionNe: "गाउँको दृश्य — बेतिनी, अँधेरी",
+    span: 'col-span-2',
+    category: 'village',
+  },
+  {
+    src: "/__generating__/img_8eb66234229b.png",
+    captionEn: "Mountain View",
+    captionNe: "हिमाल दृश्य",
+    span: 'col-span-1',
+    category: 'nature',
+  },
+  {
+    src: "/__generating__/img_cdba0bb2a07d.png",
+    captionEn: "Village Path",
+    captionNe: "गाउँको बाटो",
+    span: 'col-span-1',
+    category: 'village',
+  },
+  {
+    src: "/__generating__/img_6a4fd5c8f851.png",
+    captionEn: "Family Warmth",
+    captionNe: "परिवारको न्यानो",
+    span: 'col-span-1',
+    category: 'family',
+  },
+  {
+    src: "/__generating__/img_7f6f97e712e2.png",
+    captionEn: "Cultural Heritage",
+    captionNe: "सांस्कृतिक सम्पदा",
+    span: 'col-span-1',
+    category: 'culture',
+  },
+  {
+    src: "/__generating__/img_aa35d85ca79c.png",
+    captionEn: "Farming Life",
+    captionNe: "कृषि जीवन",
+    span: 'col-span-1',
+    category: 'village',
+  },
+  {
+    src: "/__generating__/img_d489e21c33e9.png",
+    captionEn: "Village Home",
+    captionNe: "गाउँको घर",
+    span: 'col-span-1',
+    category: 'village',
+  },
+  {
+    src: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/18923fc65_20220207_151651.jpg",
+    captionEn: "Village Shop & Daily Life",
+    captionNe: "गाउँको पसल र दैनिक जीवन",
+    span: 'col-span-1',
+    category: 'village',
+  },
+  {
+    src: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/56a796fb8_20221027_122720.jpg",
+    captionEn: "Dashain Blessing — Mother & Son",
+    captionNe: "दशैंको आशीर्वाद — आमा र छोरा",
+    span: 'col-span-2',
+    category: 'culture',
+  },
+  {
+    src: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/304e7e90d_20210720_082626.jpg",
+    captionEn: "Rice Fields of Makwanpur",
+    captionNe: "मकवानपुरका धान खेत",
+    span: 'col-span-1',
+    category: 'nature',
+  },
+  {
+    src: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/3a59d0b17_IMG_20210504_145146.jpg",
+    captionEn: "Andheri Village in the Mist",
+    captionNe: "कुहिरोमा अँधेरी गाउँ",
+    span: 'col-span-1',
+    category: 'village',
+  },
+  {
+    src: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/38d5ccfac_20190408_064044-01.jpg",
+    captionEn: "Aerial View of the Village",
+    captionNe: "गाउँको हवाई दृश्य",
+    span: 'col-span-2',
+    category: 'village',
+  },
+  {
+    src: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/2054520bc_20200113_155900.jpg",
+    captionEn: "Village Path — Children Playing",
+    captionNe: "गाउँको बाटो — खेल्दै बच्चाहरू",
+    span: 'col-span-1',
+    category: 'village',
+  },
+];
+
+const FILTER_LABELS = {
+  en: { all: 'All', village: 'Village', culture: 'Culture', family: 'Family', nature: 'Nature' },
+  ne: { all: 'सबै', village: 'गाउँ', culture: 'संस्कृति', family: 'परिवार', nature: 'प्रकृति' },
+  ko: { all: '전체', village: '마을', culture: '문화', family: '가족', nature: '자연' },
+};
+
+const FILTER_EMOJI = { all: '🖼️', village: '🏡', culture: '🏮', family: '👨‍👩‍👧', nature: '🌿' };
+
+export default function Gallery() {
+  const { t, lang } = useLanguage();
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+
+  const fl = FILTER_LABELS[lang] || FILTER_LABELS.en;
+  const categories = ['all', 'village', 'culture', 'family', 'nature'];
+
+  const getCaption = (p) => lang === 'ne' ? p.captionNe : p.captionEn;
+  const filtered = activeFilter === 'all' ? PHOTOS : PHOTOS.filter(p => p.category === activeFilter);
+
+  return (
+    <section id="gallery" className="py-28 bg-background">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-10">
+          <p className="text-primary text-sm font-semibold tracking-widest uppercase mb-3">{t.gallery.eyebrow}</p>
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">{t.gallery.title}</h2>
+          <div className="w-12 h-0.5 bg-primary mx-auto mt-5 mb-4" />
+          <p className="text-muted-foreground text-lg">{t.gallery.subtitle}</p>
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2 justify-center mb-8">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveFilter(cat)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border flex items-center gap-1.5 ${
+                activeFilter === cat
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-card text-muted-foreground border-border hover:border-primary hover:text-primary'
+              }`}
+            >
+              <span>{FILTER_EMOJI[cat]}</span>
+              {fl[cat]}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {filtered.map((p, i) => (
+            <div
+              key={i}
+              className={`${activeFilter === 'all' ? p.span : 'col-span-1'} relative group overflow-hidden rounded-2xl cursor-pointer bg-muted`}
+              style={{ minHeight: '200px' }}
+              onClick={() => setLightboxIndex(i)}
+            >
+              <img
+                src={p.src}
+                alt={getCaption(p)}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                style={{ minHeight: '200px' }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <p className="absolute bottom-3 left-3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {getCaption(p)}
+              </p>
+              <span className="absolute top-3 right-3 text-xs bg-black/40 text-white px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                {FILTER_EMOJI[p.category]}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Lightbox Slider */}
+      {lightboxIndex !== null && (
+        <GalleryLightbox
+          photos={filtered}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          getCaption={getCaption}
+        />
+      )}
+    </section>
+  );
+}

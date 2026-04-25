@@ -1,0 +1,31 @@
+{
+  "name": "GuestbookEntry",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "from_location": {
+      "type": "string"
+    },
+    "approved": {
+      "type": "boolean",
+      "default": false
+    },
+    "emoji": {
+      "type": "string",
+      "default": "\ud83d\ude4f"
+    },
+    "reply": {
+      "type": "string",
+      "description": "Family reply to this guestbook message"
+    }
+  },
+  "required": [
+    "name",
+    "message"
+  ]
+}

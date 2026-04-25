@@ -1,0 +1,268 @@
+import React, { useState } from 'react';
+import { LanguageProvider, useLanguage } from '../lib/LanguageContext';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { Link } from 'react-router-dom';
+
+const PROFILE_PHOTO = "https://media.base44.com/images/public/user_68fcf0a9928d8a4a4888358c/4be9e25b9_20240718_222958.jpg";
+const BG_IMAGE = "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/96fb76b72_20210525_155602.jpg";
+
+const SECTIONS = [
+  {
+    icon: '🌱',
+    titleNe: 'जन्म र बाल्यकाल',
+    titleEn: 'Birth & Early Life',
+    titleKo: '탄생과 유년 시절',
+    contentNe: 'मेरो जन्म वि.सं. २०५० साल वैशाख १ गते, नेपालको मकवानपुर जिल्लाको बेतिनी गाउँ-६, अँधेरीमा भएको हो। सानो, हराभरा पहाडी गाउँको स्वच्छ हावापानी र परिवारको न्यानो मायाको काखमा मेरो बाल्यकाल बित्यो।\n\nसानैदेखि म अलि चन्चले र हाँसिलो स्वभावको थिएँ। घर-परिवार र छरछिमेकमा सबैले मलाई माया गर्थे। पहाडको खुला वातावरणमा साथीभाइसँग खेल्दै हुर्किएको ती बचपनका दिनहरू आजसम्म पनि मेरो मनमा ताजा छन्।',
+    contentEn: 'I was born on 1st Baisakh 2050 BS (1993 AD) in Betini Village-6, Andheri, Makwanpur District, Nepal. My childhood was spent in the fresh mountain air and the warm embrace of a loving family in this small, lush hill village.\n\nFrom an early age, I was known for my cheerful and lively nature. Family and neighbours alike showered me with love and affection. Growing up playing with friends in the open mountain environment — those childhood days remain vivid in my heart to this day.',
+    contentKo: '나는 네팔 마크완푸르 지구 안데리 베티니 마을 6번지에서 BS 2050년 바이사크 1일(1993년)에 태어났습니다. 나의 어린 시절은 이 작고 푸른 산골 마을의 맑은 공기와 따뜻한 가족의 품에서 보냈습니다.\n\n어릴 때부터 나는 밝고 활발한 성격으로 알려져 있었습니다. 가족과 이웃 모두에게 사랑을 받았으며, 탁 트인 산속 환경에서 친구들과 뛰놀며 자라던 그 어린 시절의 기억들은 지금도 마음속에 생생히 남아 있습니다.',
+    color: 'from-green-500/20 to-emerald-500/10',
+    border: 'border-green-200',
+  },
+  {
+    icon: '🎓',
+    titleNe: 'शिक्षा र विद्यालय जीवन',
+    titleEn: 'Education & School Life',
+    titleKo: '교육과 학교 생활',
+    contentNe: 'मैले आफ्नो प्रारम्भिक शिक्षा बेतिनी गाउँकै स्थानीय विद्यालयबाट सुरु गरेँ। माध्यमिक शिक्षा (SLC) वि.सं. २०७०/७१ मा श्री बाघ भैरव माध्यमिक विद्यालय, बेतिनीबाट सफलतापूर्वक उत्तीर्ण गरेँ।\n\nविद्यालयका ती दिनहरू मेरो जीवनका सबैभन्दा अविस्मरणीय क्षणहरू हुन्। साथीहरूसँग बिताएको समय, शिक्षकहरूको मार्गदर्शन र कक्षाकोठाको सानो संसारले मलाई जीवनमा अनुशासन, जिम्मेवारी र ठूलो सपना देख्न सिकायो।',
+    contentEn: 'I began my early schooling at a local school in Betini village. I successfully completed my Secondary Level Certificate (SLC) in 2070/71 BS from Shree Bagh Bhairav Secondary School, Betini.\n\nThose school days are the most unforgettable moments of my life. Time spent with friends, the guidance of teachers, and the small world of the classroom taught me discipline, responsibility, and the courage to dream big in life.',
+    contentKo: '나는 베티니 마을의 지역 학교에서 초등 교육을 시작했습니다. 그 후 베티니 슈리 바그 바이라브 중등학교에서 BS 2070/71년에 중등 졸업 자격증(SLC)을 성공적으로 취득했습니다.\n\n그 학창 시절은 내 인생에서 가장 잊지 못할 순간들입니다. 친구들과 함께한 시간, 선생님들의 가르침, 그리고 작은 교실 안의 세상은 나에게 규율, 책임감, 그리고 큰 꿈을 꿀 수 있는 용기를 가르쳐 주었습니다.',
+    color: 'from-blue-500/20 to-sky-500/10',
+    border: 'border-blue-200',
+  },
+  {
+    icon: '💔',
+    titleNe: 'आमाको बिछोड र संघर्षको समय',
+    titleEn: 'Loss of Mother & Years of Struggle',
+    titleKo: '어머니의 이별과 고난의 시간',
+    contentNe: 'मेरो जीवनमा वि.सं. २०७० साल फागुन ३० गते एउटा कहिल्यै निको नहुने चोट लाग्यो — मेरी ममतामयी आमा, रिता कुमारी ग्यालनको असामयिक देहावसान भयो। आमाको यो बिछोडले मेरो संसार नै हल्लाइदियो। उहाँको अभाव आजसम्म पनि हृदयमा गहिरो खाली ठाउँ बनाएको छ।\n\nआमाको निधनपछि हाम्रो परिवारमा ठुलो परिवर्तन आयो। बुबा (डिल कुमार ग्यालन) पछि कान्छी आमा ल्याएर छुट्टै बस्न थाल्नुभयो। त्यसपछि मेरो अभिभावकत्वको सम्पूर्ण जिम्मेवारी मेरा दाई (अशोक कुमार ग्यालन) र भाउजु (सिर्जना ग्यालन) को काँधमा आयो।\n\nउहाँहरूले आफ्नो दुःख गाँसेर, त्याग गरेर मलाई हुर्काउनुभयो। तिनै दाई र भाउजुकै कारण आज म यहाँसम्म आइपुगेको छु। उहाँहरू मेरो लागि बुबा-आमा सरह नै हुनुहुन्छ।',
+    contentEn: 'On 30th Falgun 2070 BS, a wound that will never fully heal struck my life — my beloved mother, Rita Kumari Gyalan, passed away unexpectedly. Her loss shook my entire world, and to this day, her absence remains a deep, hollow space in my heart.\n\nAfter my mother\'s passing, great change came to our family. My father (Dil Kumar Gyalan) later moved on and started a new household. From that point, the full responsibility of raising me fell entirely on the shoulders of my elder brother (Ashok Kumar Gyalan) and sister-in-law (Sirjana Gyalan).\n\nThey swallowed their own grief and sacrificed greatly to raise me. It is because of them that I have come this far today. They are, for all purposes, my mother and father.',
+    contentKo: 'BS 2070년 팔군 30일, 내 인생에 결코 아물지 않을 상처가 생겼습니다 — 사랑하는 어머니 리타 쿠마리 갈란이 갑작스럽게 세상을 떠나셨습니다. 그 상실은 나의 온 세상을 흔들었고, 오늘날까지도 어머니의 부재는 내 마음속 깊은 공허함으로 남아 있습니다.\n\n어머니가 돌아가신 후, 우리 가족에게 큰 변화가 찾아왔습니다. 아버지(딜 쿠마르 갈란)는 이후 새로운 삶을 시작하셨습니다. 그때부터 나를 돌보는 모든 책임은 형(아쇼크 쿠마르 갈란)과 형수(시르자나 갈란)의 어깨 위에 놓였습니다.\n\n그들은 자신의 슬픔을 삼키며 나를 위해 헌신해 주었습니다. 오늘날 내가 여기까지 올 수 있었던 것은 그들 덕분입니다. 그들은 나에게 부모님과 다름없는 존재입니다.',
+    color: 'from-rose-500/20 to-pink-500/10',
+    border: 'border-rose-200',
+  },
+  {
+    icon: '📚',
+    titleNe: 'कोरियन भाषा र नयाँ सुरुवात',
+    titleEn: 'Learning Korean & A New Beginning',
+    titleKo: '한국어 배우기와 새로운 시작',
+    contentNe: 'आमाको निधनपछिको कठिन समयमा पनि दाई र भाउजुले मलाई हार खान दिनुभएन। उहाँहरूले आफ्नो दुःख-कष्ट सहेर मलाई कोरियन भाषा पढ्न पठाउनुभयो। त्यो उहाँहरूको मेरोप्रतिको अगाध माया र सपनाको प्रमाण थियो।\n\nमैले पनि उहाँहरूको त्यागको कदर गर्दै पूरा मन र मेहनतले कोरियन भाषा सिकेँ। यो नयाँ भाषाले मेरो जीवनमा एउटा उज्यालो ढोका खोलिदियो।',
+    contentEn: 'Even in those difficult times after losing my mother, my brother and sister-in-law never let me give up. Despite their own hardships, they sent me to learn the Korean language. It was a testament to their immense love and dreams for me.\n\nHonoring their sacrifice, I threw myself fully into learning Korean with all my heart and effort. This new language opened a bright door in my life.',
+    contentKo: '어머니를 잃은 힘든 시간 속에서도, 형과 형수는 내가 포기하도록 내버려 두지 않았습니다. 자신들의 고생에도 불구하고, 그들은 나를 한국어 공부에 보내 주었습니다. 그것은 나에 대한 그들의 깊은 사랑과 꿈의 증거였습니다.\n\n그들의 희생에 보답하기 위해, 나는 온 마음과 노력을 다해 한국어를 배웠습니다. 이 새로운 언어는 내 삶에 밝은 문을 열어 주었습니다.',
+    color: 'from-amber-500/20 to-yellow-500/10',
+    border: 'border-amber-200',
+  },
+  {
+    icon: '✈️',
+    titleNe: 'कोरिया प्रस्थान र वर्तमान जीवन',
+    titleEn: 'Departure to Korea & Present Life',
+    titleKo: '한국으로 출발과 현재 생활',
+    contentNe: 'दाई-भाउजुको सपना र मेरो अथक मेहनतले गर्दा आज म रोजगारीको सिलसिलामा दक्षिण कोरियामा छु। यहाँ काम गर्दागर्दै पनि मेरो मन सधैँ मेरो गाउँ, मेरो परिवार र मेरो नेपालमा रहन्छ।\n\nयो सफलता केवल मेरो मात्र नभई दाई-भाउजुको वर्षौंको संघर्ष, त्याग र अनगिन्ती रातको अनिद्राको प्रतिफल हो। म उहाँहरूप्रति सधैँ ऋणी छु।',
+    contentEn: 'Through my brother and sister-in-law\'s dreams and my relentless dedication, I am today working in South Korea. Even while working here, my heart always remains with my village, my family, and my Nepal.\n\nThis achievement is not mine alone — it is the fruit of years of struggle, sacrifice, and countless sleepless nights by my brother and sister-in-law. I am forever indebted to them.',
+    contentKo: '형과 형수의 꿈과 나의 끊임없는 노력 덕분에, 나는 오늘 한국에서 일하고 있습니다. 이곳에서 일하면서도, 나의 마음은 항상 내 마을, 내 가족, 그리고 내 네팔에 머물러 있습니다.\n\n이 성취는 오직 나만의 것이 아닙니다 — 그것은 형과 형수의 수년간의 투쟁, 희생, 그리고 셀 수 없이 많은 밤샘 고생의 결실입니다. 나는 그들에게 영원히 빚을 지고 있습니다.',
+    color: 'from-purple-500/20 to-violet-500/10',
+    border: 'border-purple-200',
+  },
+  {
+    icon: '🎵',
+    titleNe: 'व्यक्तित्व र रुचिहरू',
+    titleEn: 'Personality & Interests',
+    titleKo: '성격과 관심사',
+    contentNe: 'मलाई संगीत र नृत्यमा गहिरो रुचि छ। गीत गाउनु, संगीत सुन्नु र नाच्नु मेरा सबैभन्दा प्रिय काम हुन्। साथै, नयाँ-नयाँ ठाउँहरू घुम्न र प्रकृतिको सौन्दर्य उपभोग गर्न मलाई निकै मन पर्छ।\n\nम सधैँ नयाँ कुराहरू सिक्न र प्रविधिसँग जोडिन उत्सुक रहन्छु। मानिसहरूसँग मिलेर काम गर्ने, नयाँ साथीहरू बनाउने र सकारात्मक सोच राख्ने मेरो स्वभाव हो।',
+    contentEn: 'I have a deep passion for music and dance. Singing, listening to music, and dancing are my most cherished activities. I also love exploring new places and enjoying the beauty of nature.\n\nI am always eager to learn new things and connect with technology. Working with people, making new friends, and maintaining a positive mindset are central to who I am.',
+    contentKo: '나는 음악과 춤에 깊은 열정이 있습니다. 노래 부르기, 음악 듣기, 춤추기는 내가 가장 소중히 여기는 활동들입니다. 새로운 장소를 탐험하고 자연의 아름다움을 즐기는 것도 매우 좋아합니다.\n\n나는 항상 새로운 것을 배우고 기술과 연결되는 것에 열정적입니다. 사람들과 함께 일하고, 새로운 친구를 사귀고, 긍정적인 마음가짐을 유지하는 것이 나의 본성입니다.',
+    color: 'from-orange-500/20 to-red-500/10',
+    border: 'border-orange-200',
+  },
+  {
+    icon: '🎯',
+    titleNe: 'भविष्यको लक्ष्य र संकल्प',
+    titleEn: 'Future Goals & Resolutions',
+    titleKo: '미래 목표와 다짐',
+    contentNe: 'म जहाँ भए पनि, जे गरे पनि — आफ्नो गाउँ, आफ्नो परिवार र आफ्नो मातृभूमि नेपाललाई सधैँ शिरमा राखेर अगाडि बढ्न चाहन्छु।\n\nभविष्यमा अझ धेरै प्रगति गरेर, आफ्नो दाई-भाउजुको सपना पूरा गर्दै, आफ्नो परिवारलाई सुख र खुसी दिने र आफ्नो गाउँ-ठाउँको लागि केही अर्थपूर्ण योगदान दिने मेरो मुख्य संकल्प हो।',
+    contentEn: 'No matter where I am or what I do — I always want to move forward with my village, my family, and my motherland Nepal held at the very top.\n\nMy greatest resolution is to achieve greater progress in the future, fulfil the dreams of my brother and sister-in-law, bring happiness and comfort to my family, and make a meaningful contribution to my village and homeland.',
+    contentKo: '어디에 있든, 무엇을 하든 — 나는 항상 내 마을, 내 가족, 그리고 내 조국 네팔을 최우선으로 두고 앞으로 나아가고 싶습니다.\n\n미래에 더 큰 발전을 이루고, 형과 형수의 꿈을 이루며, 가족에게 행복과 안락함을 주고, 내 마을과 고향에 의미 있는 기여를 하는 것이 나의 가장 큰 다짐입니다.',
+    color: 'from-teal-500/20 to-cyan-500/10',
+    border: 'border-teal-200',
+  },
+];
+
+const LABELS = {
+  ne: {
+    badge: 'जीवनी',
+    name: 'सागर ग्यालन मगर',
+    tagline: 'संघर्षदेखि सफलतासम्म — मेरो जीवन कथा',
+    quote: '"परिवारको माया नै मेरो सबभन्दा ठुलो सम्पत्ति हो।"',
+    backHome: '← गृहपृष्ठमा फर्कनुहोस्',
+    statsLabel: ['जन्म', 'हालको स्थान', 'जिल्ला', 'भाषाहरू'],
+    statsValue: ['२०५० वि.सं.', 'दक्षिण कोरिया 🇰🇷', 'मकवानपुर 🇳🇵', 'नेपाली · English · 한국어'],
+  },
+  en: {
+    badge: 'Biography',
+    name: 'Sagar Gyalan Magar',
+    tagline: 'From Struggle to Success — My Life Story',
+    quote: '"The love of family is my greatest wealth."',
+    backHome: '← Back to Home',
+    statsLabel: ['Born', 'Current Location', 'District', 'Languages'],
+    statsValue: ['2050 BS / 1993', 'South Korea 🇰🇷', 'Makwanpur 🇳🇵', 'Nepali · English · 한국어'],
+  },
+  ko: {
+    badge: '전기',
+    name: '사가르 갈란 마가르',
+    tagline: '고난에서 성공으로 — 나의 인생 이야기',
+    quote: '"가족의 사랑이 나의 가장 큰 재산입니다."',
+    backHome: '← 홈으로 돌아가기',
+    statsLabel: ['출생', '현재 위치', '지구', '언어'],
+    statsValue: ['2050 BS / 1993', '대한민국 🇰🇷', '마크완푸르 🇳🇵', 'Nepali · English · 한국어'],
+  },
+};
+
+function getContent(sec, lang) {
+  if (lang === 'ne') return sec.contentNe;
+  if (lang === 'ko') return sec.contentKo;
+  return sec.contentEn;
+}
+
+function getTitle(sec, lang) {
+  if (lang === 'ne') return sec.titleNe;
+  if (lang === 'ko') return sec.titleKo;
+  return sec.titleEn;
+}
+
+function BiographyContent() {
+  const { lang, fontClass } = useLanguage();
+  const t = LABELS[lang] || LABELS.en;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+
+      {/* ── Hero Banner ── */}
+      <div className="relative pt-20 pb-20 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${BG_IMAGE})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-foreground/85 via-foreground/70 to-primary/60" />
+        {/* Decorative blobs */}
+        <div className="absolute top-10 right-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-10 w-56 h-56 bg-accent/20 rounded-full blur-3xl" />
+
+        <div className="relative z-10 max-w-5xl mx-auto px-6">
+          {/* Back link */}
+          <Link to="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm mb-8 transition-colors">
+            {t.backHome}
+          </Link>
+
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-8">
+            {/* Photo */}
+            <div className="relative flex-shrink-0">
+              <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-primary/60 to-accent/40 blur-sm" />
+              <img
+                src={PROFILE_PHOTO}
+                alt="Sagar Gyalan Magar"
+                className="relative w-36 h-36 md:w-48 md:h-48 rounded-full object-cover object-top border-4 border-white/25 shadow-2xl"
+              />
+              <span className="absolute bottom-2 right-2 text-2xl bg-black/30 backdrop-blur-sm rounded-full w-10 h-10 flex items-center justify-center">🇳🇵</span>
+            </div>
+
+            {/* Text */}
+            <div className={`text-center md:text-left ${fontClass}`}>
+              <span className="inline-block bg-white/15 backdrop-blur-sm text-white/90 text-xs font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full border border-white/20 mb-3">
+                {t.badge}
+              </span>
+              <h1 className="font-serif text-4xl md:text-6xl font-bold text-white leading-tight mb-3">
+                {t.name}
+              </h1>
+              <div className="w-14 h-0.5 bg-primary mx-auto md:mx-0 mb-4" />
+              <p className="text-white/80 text-lg md:text-xl">
+                {t.tagline}
+              </p>
+            </div>
+          </div>
+
+          {/* Stats bar */}
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {t.statsLabel.map((label, i) => (
+              <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl px-4 py-3 text-center">
+                <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1">{label}</p>
+                <p className={`text-white font-semibold text-sm leading-snug ${fontClass}`}>{t.statsValue[i]}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Timeline-style sections ── */}
+      <div className="max-w-3xl mx-auto px-6 py-16">
+        {/* Vertical timeline line */}
+        <div className="relative">
+          <div className="hidden md:block absolute left-[27px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/40 via-border to-transparent" />
+
+          <div className="space-y-10">
+            {SECTIONS.map((sec, i) => (
+              <div key={i} className="flex gap-6 items-start group">
+                {/* Icon dot */}
+                <div className={`relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br ${sec.color} border ${sec.border} flex items-center justify-center text-2xl flex-shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-200`}>
+                  {sec.icon}
+                </div>
+
+                {/* Card */}
+                <div className="flex-1 bg-card border border-border rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                  {/* Card header */}
+                  <div className={`px-6 pt-5 pb-4 bg-gradient-to-r ${sec.color} border-b ${sec.border}`}>
+                    <h2 className={`font-serif text-xl md:text-2xl font-bold text-foreground leading-snug ${fontClass}`}>
+                      {getTitle(sec, lang)}
+                    </h2>
+                  </div>
+                  {/* Card body */}
+                  <div className="px-6 py-5">
+                    {getContent(sec, lang).split('\n\n').map((para, j) => (
+                      <p key={j} className={`text-foreground/75 leading-relaxed text-base mb-4 last:mb-0 ${fontClass}`}>
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Closing Quote ── */}
+        <div className="mt-16 relative overflow-hidden bg-gradient-to-br from-primary/8 via-card to-accent/8 border border-primary/25 rounded-3xl p-10 text-center shadow-sm">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-2xl" />
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-accent/5 rounded-full translate-x-1/2 translate-y-1/2 blur-2xl" />
+          <p className="relative text-5xl mb-5">🙏</p>
+          <p className={`relative font-serif text-2xl md:text-3xl font-semibold text-foreground italic mb-4 leading-snug ${fontClass}`}>
+            {t.quote}
+          </p>
+          <div className="w-10 h-0.5 bg-primary mx-auto mb-3" />
+          <p className="relative text-muted-foreground text-sm font-medium tracking-wide">
+            — {lang === 'ne' ? 'सागर ग्यालन मगर' : lang === 'ko' ? '사가르 갈란 마가르' : 'Sagar Gyalan Magar'}
+          </p>
+        </div>
+
+        {/* Back to home button */}
+        <div className="mt-10 text-center">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition-all hover:scale-105 shadow-md"
+          >
+            {t.backHome}
+          </Link>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}
+
+export default function Biography() {
+  return (
+    <LanguageProvider>
+      <BiographyContent />
+    </LanguageProvider>
+  );
+}

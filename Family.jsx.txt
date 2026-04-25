@@ -1,0 +1,75 @@
+import React from 'react';
+import { useLanguage } from '../lib/LanguageContext';
+
+const ROLES_EMOJI = {
+  Father: '👨', Mother: '👩', 'Elder Brother': '👦', 'Sister-in-law': '👩‍👧',
+  Nephew: '🧒', Niece: '👧',
+  बुवा: '👨', आमा: '👩', दाई: '👦', भाउजू: '👩‍👧', भतिज: '🧒', भतिजी: '👧',
+  아버지: '👨', 어머니: '👩', 형: '👦', 형수: '👩‍👧', '조카 (남)': '🧒', '조카 (여)': '👧',
+};
+
+const FATHER_PHOTO = "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/7f226b93f_Screenshot_20260419-2351042.png";
+
+const MEMBER_PHOTOS = {
+  Father: FATHER_PHOTO,
+  बुवा: FATHER_PHOTO,
+  아버지: FATHER_PHOTO,
+  Mother: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/63808f378_PicsArt_12-19-125506.jpg",
+  आमा: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/63808f378_PicsArt_12-19-125506.jpg",
+  어머니: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/63808f378_PicsArt_12-19-125506.jpg",
+  'Elder Brother': "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/67ce91f3b_received_2274617043649802.jpg",
+  दाई: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/67ce91f3b_received_2274617043649802.jpg",
+  형: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/67ce91f3b_received_2274617043649802.jpg",
+  'Sister-in-law': "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/fdc76b3fc_IMG_20260419_155518.jpg",
+  भाउजू: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/fdc76b3fc_IMG_20260419_155518.jpg",
+  형수: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/fdc76b3fc_IMG_20260419_155518.jpg",
+  Nephew: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/493f821ac_Screenshot_20260419-1556192.png",
+  भतिज: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/493f821ac_Screenshot_20260419-1556192.png",
+  '조카 (남)': "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/493f821ac_Screenshot_20260419-1556192.png",
+  Niece: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/1ae8763e9_Screenshot_20260419-160342.png",
+  भतिजी: "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/1ae8763e9_Screenshot_20260419-160342.png",
+  '조카 (여)': "https://media.base44.com/images/public/69e45033a417e8a3481c7bdb/1ae8763e9_Screenshot_20260419-160342.png",
+};
+
+const BG_COLORS = [
+  'from-red-50 to-orange-50 border-red-100',
+  'from-pink-50 to-rose-50 border-pink-100',
+  'from-blue-50 to-indigo-50 border-blue-100',
+  'from-purple-50 to-violet-50 border-purple-100',
+  'from-green-50 to-emerald-50 border-green-100',
+  'from-amber-50 to-yellow-50 border-amber-100',
+];
+
+export default function Family() {
+  const { t, fontClass } = useLanguage();
+
+  return (
+    <section id="family" className="py-28 bg-secondary/30">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <p className="text-primary text-sm font-semibold tracking-widest uppercase mb-3">{t.family.eyebrow}</p>
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">{t.family.title}</h2>
+          <div className="w-12 h-0.5 bg-primary mx-auto mt-5 mb-4" />
+          <p className="text-muted-foreground text-lg">{t.family.subtitle}</p>
+        </div>
+
+        <div className={`grid grid-cols-2 md:grid-cols-3 gap-6 ${fontClass}`}>
+          {t.family.members.map((m, i) => (
+            <div
+              key={i}
+              className={`bg-gradient-to-br ${BG_COLORS[i]} border rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 hover:shadow-md`}
+            >
+              <div className="w-16 h-16 rounded-full bg-white/70 flex items-center justify-center text-3xl shadow-sm mb-4 overflow-hidden">
+                {MEMBER_PHOTOS[m.role]
+                  ? <img src={MEMBER_PHOTOS[m.role]} alt={m.name} className="w-full h-full object-cover object-top" />
+                  : ROLES_EMOJI[m.role] || '👤'}
+              </div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{m.role}</p>
+              <p className="font-serif text-lg font-bold text-foreground leading-snug">{m.name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

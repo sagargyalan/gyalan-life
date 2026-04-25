@@ -1,0 +1,154 @@
+import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../lib/LanguageContext';
+import WeatherWidget from './WeatherWidget';
+import {
+  adToBs, bsToAd, getBsMonthLength,
+  bsMonthsEn, bsMonthsNe, toNepaliDigits
+} from '../lib/nepaliCalendar';
+
+function LiveClock({ t, lang }) {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Nepal is UTC+5:45
+  const nepalOffset = 5 * 60 + 45;
+  const utc = time.getTime() + time.getTimezoneOffset() * 60000;
+  const nepal = new Date(utc + nepalOffset * 60000);
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const h = pad(nepal.getHours());
+  const m = pad(nepal.getMinutes());
+  const s = pad(nepal.getSeconds());
+
+  const toNep = (str) => lang === 'ne'
+    ? str.split('').map(c => /\d/.test(c) ? ['०','१','२','३','४','५','६','७','८','९'][+c] : c).join('')
+    : str;
+
+  const dayNames = {
+    en: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    ne: ["आइतबार","सोमबार","मंगलबार","बुधबार","बिहिबार","शुक्रबार","शनिबार"],
+    ko: ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"],
+  };
+
+  const dayName = dayNames[lang]?.[nepal.getDay()] || dayNames.en[nepal.getDay()];
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm flex flex-col items-center">
+      <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4">
+        🕐 {t.clock.nepalTime}
+      </p>
+      <div className="font-mono text-5xl font-bold text-foreground tracking-tight mb-2">
+        {toNep(h)}<span className="text-primary animate-pulse">:</span>{toNep(m)}<span className="text-primary animate-pulse">:</span>{toNep(s)}
+      </div>
+      <p className="text-muted-foreground text-sm mt-2">{dayName}</p>
+      <p className="text-xs text-muted-foreground mt-1">UTC +5:45 (NPT)</p>
+    </div>
+  );
+}
+
+function NepaliCalendar({ t, lang }) {
+  const today = new Date();
+  const todayBs = adToBs(today);
+
+  const [viewYear, setViewYear] = useState(todayBs?.year || 2081);
+  const [viewMonth, setViewMonth] = useState(todayBs?.month || 0);
+
+  const monthName = lang === 'ne' ? bsMonthsNe[viewMonth] : bsMonthsEn[viewMonth];
+  const daysInMonth = getBsMonthLength(viewYear, viewMonth);
+
+  // Day of week for day 1 of this month
+  const firstAd = bsToAd(viewYear, viewMonth, 1);
+  const startDow = firstAd ? firstAd.getDay() : 0; // 0=Sun
+
+  const weekdays = t.calendar.weekdays;
+
+  const prev = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
+    else setViewMonth(m => m - 1);
+  };
+  const next = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
+    else setViewMonth(m => m + 1);
+  };
+
+  const toD = (n) => lang === 'ne' ? toNepaliDigits(n) : String(n);
+  const yearStr = lang === 'ne' ? toNepaliDigits(viewYear) : String(viewYear);
+
+  const cells = [];
+  for (let i = 0; i < startDow; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const isToday = (d) =>
+    todayBs && d === todayBs.day && viewMonth === todayBs.month && viewYear === todayBs.year;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+      <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4 text-center">
+        📅 {t.calendar.title}
+      </p>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={prev} className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors text-lg font-bold">‹</button>
+        <div className="text-center">
+          <p className="font-serif font-bold text-lg text-foreground">{monthName}</p>
+          <p className="text-xs text-muted-foreground">{yearStr}</p>
+        </div>
+        <button onClick={next} className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors text-lg font-bold">›</button>
+      </div>
+      {/* Weekday labels */}
+      <div className="grid grid-cols-7 mb-2">
+        {weekdays.map((w, i) => (
+          <div key={i} className={`text-center text-xs font-semibold py-1 ${i === 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+            {w}
+          </div>
+        ))}
+      </div>
+      {/* Days */}
+      <div className="grid grid-cols-7 gap-y-1">
+        {cells.map((d, i) => (
+          <div key={i} className="flex items-center justify-center">
+            {d ? (
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-colors ${
+                isToday(d)
+                  ? 'bg-primary text-primary-foreground font-bold'
+                  : i % 7 === 0
+                    ? 'text-destructive hover:bg-destructive/10 cursor-default'
+                    : 'text-foreground hover:bg-secondary cursor-default'
+              }`}>
+                {toD(d)}
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+      {/* Today label */}
+      {todayBs && (
+        <p className="text-center text-xs text-muted-foreground mt-3 border-t border-border pt-3">
+          {t.calendar.today}: {lang === 'ne'
+            ? `${toNepaliDigits(todayBs.year)} ${bsMonthsNe[todayBs.month]} ${toNepaliDigits(todayBs.day)}`
+            : `${todayBs.day} ${bsMonthsEn[todayBs.month]} ${todayBs.year}`}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function ClockCalendar() {
+  const { t, lang, fontClass } = useLanguage();
+
+  return (
+    <section className="py-16 bg-secondary/20">
+      <div className={`max-w-4xl mx-auto px-6 ${fontClass}`}>
+        <div className="grid md:grid-cols-3 gap-8">
+          <LiveClock t={t} lang={lang} />
+          <NepaliCalendar t={t} lang={lang} />
+          <WeatherWidget />
+        </div>
+      </div>
+    </section>
+  );
+}

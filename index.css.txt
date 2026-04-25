@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 36 33% 97%;
+    --foreground: 20 20% 12%;
+    --card: 36 40% 99%;
+    --card-foreground: 20 20% 12%;
+    --popover: 36 40% 99%;
+    --popover-foreground: 20 20% 12%;
+    --primary: 12 55% 38%;
+    --primary-foreground: 36 40% 98%;
+    --secondary: 30 25% 92%;
+    --secondary-foreground: 20 20% 15%;
+    --muted: 30 20% 94%;
+    --muted-foreground: 20 10% 40%;
+    --accent: 140 18% 32%;
+    --accent-foreground: 36 40% 98%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 36 40% 98%;
+    --border: 30 15% 85%;
+    --input: 30 15% 85%;
+    --ring: 12 55% 38%;
+    --chart-1: 12 55% 38%;
+    --chart-2: 140 18% 32%;
+    --chart-3: 40 60% 55%;
+    --chart-4: 20 30% 45%;
+    --chart-5: 200 30% 40%;
+    --radius: 0.75rem;
+
+    --font-serif: 'Cormorant Garamond', serif;
+    --font-sans: 'Inter', sans-serif;
+    --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+    --font-korean: 'Noto Sans KR', sans-serif;
+  }
+
+  .dark {
+    --background: 20 15% 8%;
+    --foreground: 36 30% 94%;
+    --card: 20 15% 10%;
+    --card-foreground: 36 30% 94%;
+    --popover: 20 15% 10%;
+    --popover-foreground: 36 30% 94%;
+    --primary: 12 55% 55%;
+    --primary-foreground: 20 15% 8%;
+    --secondary: 20 10% 15%;
+    --secondary-foreground: 36 30% 94%;
+    --muted: 20 10% 15%;
+    --muted-foreground: 30 10% 60%;
+    --accent: 140 18% 45%;
+    --accent-foreground: 36 30% 94%;
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 36 30% 94%;
+    --border: 20 10% 20%;
+    --input: 20 10% 20%;
+    --ring: 12 55% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
+  }
+}
+
+.font-serif-display {
+  font-family: var(--font-serif);
+}
+
+.font-devanagari {
+  font-family: var(--font-devanagari);
+}
+
+.font-korean {
+  font-family: var(--font-korean);
+}
+
+/* Subtle grain texture */
+.grain-bg {
+  position: relative;
+}
+.grain-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(hsl(var(--foreground) / 0.015) 1px, transparent 1px);
+  background-size: 3px 3px;
+  pointer-events: none;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.4);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}

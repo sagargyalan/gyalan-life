@@ -1,0 +1,158 @@
+import React, { useState } from 'react';
+import { useLanguage } from '../lib/LanguageContext';
+import { MapPin, X } from 'lucide-react';
+import useScrollReveal from '../hooks/useScrollReveal';
+
+const LOCATIONS = [
+  {
+    id: 'betini',
+    name: { en: 'Betini Village', ne: 'बेतिनी गाउँ', ko: '베티니 마을' },
+    desc: { en: 'The heart of Sagar\'s roots — a serene hamlet nestled among forested hills in Andheri, Makwanpur.', ne: 'सागरको जन्मस्थान — मकवानपुरको अँधेरीमा जंगलले घेरिएको शान्त गाउँ।', ko: '사가르의 고향 마을 — 마크완푸르 안데리의 숲으로 둘러싸인 평화로운 촌락.' },
+    emoji: '🏡', color: 'bg-green-100 border-green-300 text-green-800',
+    dot: 'bg-green-500',
+    x: '42%', y: '38%',
+    mapLink: 'https://maps.google.com/?q=Betini,Andheri,Makwanpur,Nepal',
+  },
+  {
+    id: 'andheri',
+    name: { en: 'Andheri', ne: 'अँधेरी', ko: '안데리' },
+    desc: { en: 'The rural ward area encompassing Betini — known for its traditional farming communities and natural beauty.', ne: 'बेतिनी सहित ग्रामीण वडा क्षेत्र — परम्परागत कृषि समुदाय र प्राकृतिक सौन्दर्यको लागि प्रसिद्ध।', ko: '베티니를 포함한 농촌 지역 — 전통 농업 공동체와 자연의 아름다움으로 유명.' },
+    emoji: '🌿', color: 'bg-emerald-100 border-emerald-300 text-emerald-800',
+    dot: 'bg-emerald-500',
+    x: '55%', y: '52%',
+    mapLink: 'https://maps.google.com/?q=Andheri,Makwanpur,Nepal',
+  },
+  {
+    id: 'makwanpur',
+    name: { en: 'Makwanpur District', ne: 'मकवानपुर जिल्ला', ko: '마크완푸르 지구' },
+    desc: { en: 'A beautiful hilly district south of Kathmandu Valley, famous for its forests, wildlife, and the Hetauda industrial corridor.', ne: 'काठमाण्डौ उपत्यकाको दक्षिणमा रहेको सुन्दर पहाडी जिल्ला — जंगल, वन्यजन्तु र हेटौंडाको लागि प्रसिद्ध।', ko: '카트만두 계곡 남쪽의 아름다운 산악 지구 — 숲, 야생동물, 헤타우다 산업 회랑으로 유명.' },
+    emoji: '🏔️', color: 'bg-blue-100 border-blue-300 text-blue-800',
+    dot: 'bg-blue-500',
+    x: '68%', y: '65%',
+    mapLink: 'https://maps.google.com/?q=Makwanpur,Nepal',
+  },
+  {
+    id: 'panorama',
+    name: { en: '360° Panorama Spot', ne: '३६०° दृश्य स्थान', ko: '360° 파노라마 지점' },
+    desc: { en: 'The hilltop viewpoint where Sagar captured the stunning 360° panoramic photo of the surrounding landscape.', ne: 'जहाँबाट सागरले वरपरको सुन्दर ३६०° panoramic तस्बिर खिच्नुभएको थियो।', ko: '사가르가 주변 경관의 멋진 360° 파노라마 사진을 찍은 언덕 꼭대기 전망대.' },
+    emoji: '📸', color: 'bg-amber-100 border-amber-300 text-amber-800',
+    dot: 'bg-amber-500',
+    x: '35%', y: '55%',
+    mapLink: 'https://maps.google.com/?q=Betini,Andheri,Makwanpur,Nepal',
+  },
+  {
+    id: 'bagmati',
+    name: { en: 'Bagmati Province', ne: 'बागमती प्रदेश', ko: '바그마티 주' },
+    desc: { en: 'The province containing Makwanpur — one of Nepal\'s most developed provinces, bridging hill villages with the Kathmandu Valley.', ne: 'मकवानपुर समेटेको प्रदेश — नेपालको सबैभन्दा विकसित प्रदेशमध्ये एक, पहाडी गाउँ र काठमाण्डौलाई जोड्ने।', ko: '마크완푸르를 포함한 주 — 네팔에서 가장 발전된 주 중 하나, 산악 마을과 카트만두를 연결.' },
+    emoji: '🌏', color: 'bg-purple-100 border-purple-300 text-purple-800',
+    dot: 'bg-purple-500',
+    x: '78%', y: '30%',
+    mapLink: 'https://maps.google.com/?q=Bagmati+Province,Nepal',
+  },
+];
+
+export default function InteractiveVillageMap() {
+  const { lang, fontClass, t } = useLanguage();
+  const [selected, setSelected] = useState(null);
+  const [sectionRef, visible] = useScrollReveal();
+
+  const getName = (loc) => loc.name[lang] || loc.name.en;
+  const getDesc = (loc) => loc.desc[lang] || loc.desc.en;
+
+  const labels = {
+    en: { eyebrow: 'Village Tour', title: 'Key Locations', subtitle: 'Click on a pin to explore important places from Sagar\'s home village and surrounding area.', directions: 'Get Directions', close: 'Close' },
+    ne: { eyebrow: 'गाउँ भ्रमण', title: 'मुख्य स्थानहरू', subtitle: 'सागरको गाउँका महत्त्वपूर्ण स्थानहरू हेर्न Pin मा click गर्नुहोस्।', directions: 'दिशा पाउनुहोस्', close: 'बन्द गर्नुहोस्' },
+    ko: { eyebrow: '마을 투어', title: '주요 장소', subtitle: '사가르 고향 마을의 중요한 장소를 탐색하려면 핀을 클릭하세요.', directions: '길 찾기', close: '닫기' },
+  };
+  const lbl = labels[lang] || labels.en;
+
+  return (
+    <section id="village" className="py-28 bg-secondary/30 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6" ref={sectionRef}>
+        <div className={`text-center mb-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className="text-primary text-sm font-semibold tracking-widest uppercase mb-3">{lbl.eyebrow}</p>
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-foreground">{lbl.title}</h2>
+          <div className="w-12 h-0.5 bg-primary mx-auto mt-5 mb-4" />
+          <p className={`text-muted-foreground text-lg max-w-xl mx-auto ${fontClass}`}>{lbl.subtitle}</p>
+        </div>
+
+        <div className={`transition-all duration-700 delay-200 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* Map + pins */}
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-border bg-card">
+            <iframe
+              title="Andheri Makwanpur Map"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d56524.406413853!2d85.0599!3d27.4127!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb18d3e1234567%3A0xabcdef1234567890!2sAndheri%2C%20Makwanpur%2C%20Nepal!5e0!3m2!1sen!2snp!4v1700000000000"
+              width="100%"
+              height="480"
+              style={{ border: 0, display: 'block' }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            {/* Overlay pins */}
+            <div className="absolute inset-0 pointer-events-none">
+              {LOCATIONS.map(loc => (
+                <button
+                  key={loc.id}
+                  onClick={() => setSelected(selected?.id === loc.id ? null : loc)}
+                  style={{ left: loc.x, top: loc.y, transform: 'translate(-50%, -50%)' }}
+                  className={`absolute pointer-events-auto flex flex-col items-center gap-1 group transition-all duration-200 hover:scale-110 z-10 ${selected?.id === loc.id ? 'scale-125' : ''}`}
+                >
+                  <div className={`w-10 h-10 rounded-full ${loc.dot} border-4 border-white shadow-lg flex items-center justify-center text-lg`}>
+                    {loc.emoji}
+                  </div>
+                  <span className="bg-white/90 text-foreground text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm whitespace-nowrap hidden group-hover:block">
+                    {getName(loc)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Detail Card */}
+          {selected && (
+            <div className={`mt-6 p-5 rounded-2xl border-2 ${selected.color} shadow-md relative transition-all duration-300`}>
+              <button
+                onClick={() => setSelected(null)}
+                className="absolute top-3 right-3 opacity-60 hover:opacity-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">{selected.emoji}</div>
+                <div className="flex-1">
+                  <h3 className={`font-serif text-xl font-bold mb-1 ${fontClass}`}>{getName(selected)}</h3>
+                  <p className={`text-sm leading-relaxed opacity-80 ${fontClass}`}>{getDesc(selected)}</p>
+                  <a
+                    href={selected.mapLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-3 text-xs font-semibold underline underline-offset-2 opacity-70 hover:opacity-100"
+                  >
+                    <MapPin className="w-3 h-3" /> {lbl.directions}
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Location chips */}
+          <div className={`flex flex-wrap gap-3 justify-center mt-8 ${fontClass}`}>
+            {LOCATIONS.map(loc => (
+              <button
+                key={loc.id}
+                onClick={() => setSelected(selected?.id === loc.id ? null : loc)}
+                className={`flex items-center gap-2 border rounded-full px-4 py-2 text-sm font-medium shadow-sm transition-all hover:scale-105 ${
+                  selected?.id === loc.id ? loc.color + ' scale-105' : 'bg-card border-border text-foreground hover:border-primary'
+                }`}
+              >
+                <span>{loc.emoji}</span>
+                {getName(loc)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

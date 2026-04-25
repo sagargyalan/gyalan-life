@@ -1,0 +1,62 @@
+{
+  "name": "Event",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "title_ne": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "description_ne": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "time": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "festival",
+        "mela",
+        "meeting",
+        "cultural",
+        "other"
+      ],
+      "default": "festival"
+    },
+    "cover_image": {
+      "type": "string"
+    },
+    "interested_users": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attending_users": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "published": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "date"
+  ]
+}
